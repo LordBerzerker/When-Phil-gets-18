@@ -81,7 +81,7 @@
 <body>
   <h1 id="countdown">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
   <div class="card">
-    <h2>Deine Adresse</h2>
+    <h2>📬 Deine Adresse</h2>
     <p id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</p>
 
     <h2>₿-Guthaben</h2>
@@ -140,8 +140,16 @@
         document.getElementById("fixed-eur").textContent = fixedEuro.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
         const growth = ((eur - fixedEuro) / fixedEuro) * 100;
-        const growthFormatted = (growth >= 0 ? "+" : "") + growth.toFixed(2).replace(".", ",") + " %";
-        document.getElementById("growth").textContent = growthFormatted;
+        const diffEuro = eur - fixedEuro;
+
+        const growthFormatted = 
+          (growth >= 0 ? "+" : "") + growth.toFixed(2).replace(".", ",") + " %";
+
+        const diffFormatted = 
+          (diffEuro >= 0 ? "+" : "") + 
+          diffEuro.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+
+        document.getElementById("growth").textContent = `${growthFormatted} (entspricht ${diffFormatted})`;
 
         document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString('de-DE');
       } catch (e) {
