@@ -6,44 +6,71 @@
   <title>Bitcoin Schatz</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: system-ui, sans-serif;
       background: #f9f9f9;
       color: #333;
       text-align: center;
-      padding: 2em;
+      margin: 0;
+      padding: 1em;
     }
+
     .card {
       background: white;
-      border-radius: 10px;
-      padding: 2em;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: inline-block;
-      margin-top: 2em;
+      border-radius: 12px;
+      padding: 1.5em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      max-width: 400px;
+      margin: 2em auto;
+      box-sizing: border-box;
     }
+
     h1 {
-      font-size: 1.4em;
+      font-size: 1.2em;
       color: #1a73e8;
+      margin-bottom: 1.5em;
     }
+
+    p {
+      font-size: 1em;
+      margin: 0.8em 0;
+      line-height: 1.4;
+    }
+
     .value {
-      font-size: 2em;
+      font-size: 1.4em;
       font-weight: bold;
       color: #1a73e8;
+      display: block;
+      margin-top: 0.2em;
     }
+
     .timestamp {
-      margin-top: 1em;
+      margin-top: 1.5em;
       font-size: 0.9em;
       color: #666;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1em;
+      }
+
+      .value {
+        font-size: 1.2em;
+      }
     }
   </style>
 </head>
 <body>
   <h1 id="countdown">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
   <div class="card">
-    <p><strong>Adresse:</strong><br><span id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</span></p>
-    <p>BTC-Guthaben: <span id="btc" class="value">...</span></p>
-    <p>Euro-Wert: <span id="eur" class="value">...</span></p>
-    <p>Wert am 17.07.2025 um 23:34: <span id="fixed-eur" class="value">261,47 €</span></p>
-    <p id="growth">Veränderung seit dem 17.07.2025: ...</p>
+    <p>📬 Adresse:
+      <span id="address" style="font-size: 0.9em; word-break: break-all;">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</span>
+    </p>
+    <p>₿ BTC-Guthaben:<span id="btc" class="value">...</span></p>
+    <p>€ Euro-Wert:<span id="eur" class="value">...</span></p>
+    <p>📅 Wert am 17.07.2025:<span id="fixed-eur" class="value">261,47 €</span></p>
+    <p>📈 Veränderung seit dem 17.07.2025:<span id="growth">...</span></p>
     <div class="timestamp" id="time">Aktualisiere...</div>
   </div>
 
@@ -84,14 +111,14 @@
         document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
         document.getElementById("eur").textContent = eur.toFixed(2) + " €";
 
-        // Fixwert am 17.07.2025 um 23:34 (statisch)
+        // Fixwert vom 17.07.2025
         const fixedEuro = 261.47;
         document.getElementById("fixed-eur").textContent = fixedEuro.toLocaleString('de-DE', {style: 'currency', currency: 'EUR'});
 
-        // Prozentuale Veränderung berechnen und anzeigen
+        // Prozentuale Veränderung berechnen
         const growth = ((eur - fixedEuro) / fixedEuro) * 100;
         const growthFormatted = (growth >= 0 ? "+" : "") + growth.toFixed(2) + " %";
-        document.getElementById("growth").textContent = "Veränderung seit dem 17.07.2025: " + growthFormatted;
+        document.getElementById("growth").textContent = growthFormatted;
 
         document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString();
       } catch (e) {
