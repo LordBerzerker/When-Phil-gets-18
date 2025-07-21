@@ -81,13 +81,13 @@
 <body>
   <h1 id="countdown">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
   <div class="card">
-    <h2>📬 Deine Adresse</h2>
+    <h2>Deine Adresse</h2>
     <p id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</p>
 
     <h2>₿-Guthaben</h2>
     <p id="btc" class="value">...</p>
 
-    <h2>€-Wert heute</h2>
+    <h2>💶 €-Wert heute</h2>
     <p id="eur" class="value">...</p>
 
     <h2>📅 Wert am 17.07.2025</h2>
@@ -134,16 +134,16 @@
         const eur = btc * eurRate;
 
         document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
-        document.getElementById("eur").textContent = eur.toFixed(2) + " €";
+        document.getElementById("eur").textContent = eur.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
         const fixedEuro = 261.47;
-        document.getElementById("fixed-eur").textContent = fixedEuro.toLocaleString('de-DE', {style: 'currency', currency: 'EUR'});
+        document.getElementById("fixed-eur").textContent = fixedEuro.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
         const growth = ((eur - fixedEuro) / fixedEuro) * 100;
-        const growthFormatted = (growth >= 0 ? "+" : "") + growth.toFixed(2) + " %";
+        const growthFormatted = (growth >= 0 ? "+" : "") + growth.toFixed(2).replace(".", ",") + " %";
         document.getElementById("growth").textContent = growthFormatted;
 
-        document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString();
+        document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString('de-DE');
       } catch (e) {
         console.error(e);
         document.getElementById("btc").textContent = "Fehler";
