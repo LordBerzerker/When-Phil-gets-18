@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bitcoin-Adresse – Euro-Wert (geschützt)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #222;
+      text-align: center;
+      padding: 2em;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 2em;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: inline-block;
+      margin-top: 2em;
+    }
+    h1, h2 {
+      margin: 0.2em 0;
+    }
+    h1 {
+      font-size: 1.2em;
+      color: #555;
+    }
+    h2 {
+      font-size: 1.6em;
+      color: #1a73e8;
+    }
+    .value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+    .timestamp {
+      margin-top: 1em;
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="countdown-header">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
+  <div class="card">
+    <p><strong>Adresse:</strong><br><span id="address">Lade...</span></p>
+    <p>BTC-Guthaben: <span id="btc" class="value">...</span></p>
+    <p>Euro-Wert: <span id="eur" class="value">...</span></p>
+    <div class="timestamp" id="time"></div>
+  </div>
+
+  <script>
+    // Base64-kodierte Bitcoin-Adresse (bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez)
+    const encodedAddress = 'YmMxcXpqNWs1YXdwcjVlMjU3NDN4ZXozZHhxMzZ0eXBqdDNjYzJ2ZXo=';
+
+    function decodeBase64(str) {
+      try {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+      } catch {
+        return atob(str); // fallback
+      }
+    }
+
+    const address = decodeBase64(encodedAddress);
+    document.getElementById('address').textContent = address;
+
+    // Countdown bis 17.07.2043
+    function updateCountdown() {
+      const now = new Date();
+      const targetDate = new Date('2043-07-17T00:00:00Z'); // UTC Mitternacht
+      const diffTime = targetDate - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      const header = document.getElementById('countdown-header');
+      if (diffDays > 0) {
+        header.textContent = `Dieser kleine Schatz gehört in ${diffDays} Tagen dir.`;
+      } else if (diffDays === 0) {
+        header.textContent = `Dieser kleine Schatz gehört heute dir!`;
+      } else {
+        header.textContent = `Dieser kleine Schatz gehört dir.`;
+      }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 60000); // jede Minute aktualisieren
+
+    async function fetchData() {
+      try {
+        // Guthaben von Blockstream API holen
+        const res = await fetch(`https://blockstream.info/api/address/${address}`);
+        const data = await res.json();
+        const btcBalance = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
+        const btc = btcBalance / 1e8;
+
+        // BTC-EUR Kurs von CoinGecko holen
+        const rateRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur');
+        const rateData = await rateRes.json();
+        const eurRate = rateData.bitcoin.eur;
+
+        // Werte anzeigen
+        document.getElementById('btc').textContent = btc.toFixed(8) + ' BTC';
+        document.getElementById('eur').textContent = (btc * eurRate).toFixed(2) + ' €';
+
+        const now = new Date();
+        document.getElementById('time').textContent = `Aktualisiert: ${now.toLocaleString()}`;
+      } catch (err) {
+        document.getElementById('btc').textContent = 'Fehler';
+        document.getElementById('eur').textContent = 'Fehler';
+        console.error('Fehler beim Laden der Daten:', err);
+      }
+    }
+
+    fetchData();
+    setInterval(fetchData, 60000); // alle 60 Sekunden aktualisieren
+  </script>
+</body>
+</html>
