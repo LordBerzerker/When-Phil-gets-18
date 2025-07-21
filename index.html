@@ -20,15 +20,8 @@
       display: inline-block;
       margin-top: 2em;
     }
-    h1, h2 {
-      margin: 0.2em 0;
-    }
     h1 {
-      font-size: 1.2em;
-      color: #555;
-    }
-    h2 {
-      font-size: 1.6em;
+      font-size: 1.4em;
       color: #1a73e8;
     }
     .value {
@@ -44,7 +37,7 @@
   </style>
 </head>
 <body>
-  <h1 id="countdown-header">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
+  <h1 id="countdown">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
   <div class="card">
     <p><strong>Adresse:</strong><br><span id="address">Lade...</span></p>
     <p>BTC-Guthaben: <span id="btc" class="value">...</span></p>
@@ -53,36 +46,35 @@
   </div>
 
   <script>
-    // Adresse sicher als Base64 (für leichte Verschleierung)
     const encodedAddress = 'YmMxcXpqNWs1YXdwcjVlMjU3NDN4ZXozZHhxMzZ0eXBqdDNjYzJ2ZXo=';
 
     function decodeBase64(str) {
       try {
-        return decodeURIComponent(atob(str).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+        return decodeURIComponent(atob(str).split('').map(c =>
+          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join(''));
       } catch {
-        return atob(str); // fallback
+        return atob(str);
       }
     }
 
     const address = decodeBase64(encodedAddress);
     document.getElementById('address').textContent = address;
 
-    // Countdown bis zum 17.07.2043
+    // Countdown berechnen
     function updateCountdown() {
       const now = new Date();
-      const targetDate = new Date('2043-07-17T00:00:00Z');
-      const diffTime = targetDate - now;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const target = new Date("2043-07-17T00:00:00");
+      const diff = target - now;
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      const el = document.getElementById("countdown");
 
-      const header = document.getElementById('countdown-header');
-      if (diffDays > 0) {
-        header.textContent = `Dieser kleine Schatz gehört in ${diffDays} Tagen dir.`;
-      } else if (diffDays === 0) {
-        header.textContent = `Dieser kleine Schatz gehört heute dir!`;
+      if (days > 0) {
+        el.textContent = `Dieser kleine Schatz gehört in ${days} Tagen dir.`;
+      } else if (days === 0) {
+        el.textContent = `Dieser kleine Schatz gehört heute dir!`;
       } else {
-        header.textContent = `Dieser kleine Schatz gehört dir.`;
+        el.textContent = `Dieser kleine Schatz gehört dir.`;
       }
     }
 
@@ -91,24 +83,24 @@
 
     async function fetchData() {
       try {
-        // 1. Guthaben via Blockchair holen
-        const blockchairRes = await fetch(`https://api.blockchair.com/bitcoin/dashboards/address/${address}`);
-        const blockchairData = await blockchairRes.json();
-        const btc = blockchairData.data[address].address.balance / 1e8;
+        // ✅ Korrekte, CORS-kompatible Blockstream API
+        const res = await fetch(`https://blockstream.info/api/address/${address}`);
+        const data = await res.json();
 
-        // 2. BTC-EUR Kurs holen
-        const rateRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur');
-        const rateData = await rateRes.json();
-        const eurRate = rateData.bitcoin.eur;
+        const satoshis = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
+        const btc = satoshis / 1e8;
 
-        // 3. Anzeige aktualisieren
-        document.getElementById('btc').textContent = btc.toFixed(8) + ' BTC';
-        document.getElementById('eur').textContent = (btc * eurRate).toFixed(2) + ' €';
-        document.getElementById('time').textContent = `Aktualisiert: ${new Date().toLocaleString()}`;
+        const rateRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur");
+        const rate = await rateRes.json();
+        const eur = btc * rate.bitcoin.eur;
+
+        document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
+        document.getElementById("eur").textContent = eur.toFixed(2) + " €";
+        document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString();
       } catch (err) {
-        document.getElementById('btc').textContent = 'Fehler';
-        document.getElementById('eur').textContent = 'Fehler';
-        console.error('Fehler beim Laden der Daten:', err);
+        document.getElementById("btc").textContent = "Fehler";
+        document.getElementById("eur").textContent = "Fehler";
+        console.error("Ladedaten-Fehler:", err);
       }
     }
 
