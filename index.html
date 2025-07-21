@@ -38,10 +38,9 @@
       font-weight: bold;
     }
 
-    p {
+    h2 {
       font-size: 1em;
-      margin: 0.6em 0;
-      line-height: 1.5;
+      margin: 1em 0 0.2em;
       font-weight: bold;
     }
 
@@ -49,8 +48,7 @@
       font-size: 1.2em;
       font-weight: normal;
       color: var(--primary-color);
-      display: block;
-      margin-top: 0.2em;
+      margin-bottom: 0.8em;
     }
 
     #address {
@@ -63,7 +61,6 @@
       margin-top: 1.5em;
       font-size: 0.85em;
       color: #666;
-      font-weight: normal;
     }
 
     @media (max-width: 480px) {
@@ -75,7 +72,7 @@
         font-size: 1.1em;
       }
 
-      p {
+      h2 {
         font-size: 0.95em;
       }
     }
@@ -84,11 +81,21 @@
 <body>
   <h1 id="countdown">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
   <div class="card">
-    <p>📬 Adresse:<br><span id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</span></p>
-    <p>₿ BTC-Guthaben:<span id="btc" class="value">...</span></p>
-    <p>€ Euro-Wert:<span id="eur" class="value">...</span></p>
-    <p>📅 Wert am 17.07.2025:<span id="fixed-eur" class="value">261,47 €</span></p>
-    <p>📈 Veränderung seit dem 17.07.2025:<span id="growth" class="value">...</span></p>
+    <h2>📬 Adresse</h2>
+    <p id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</p>
+
+    <h2>₿ BTC-Guthaben</h2>
+    <p id="btc" class="value">...</p>
+
+    <h2>€ Euro-Wert</h2>
+    <p id="eur" class="value">...</p>
+
+    <h2>📅 Wert am 17.07.2025</h2>
+    <p id="fixed-eur" class="value">261,47 €</p>
+
+    <h2>📈 Veränderung seit dem 17.07.2025</h2>
+    <p id="growth" class="value">...</p>
+
     <div class="timestamp" id="time">Aktualisiere...</div>
   </div>
 
@@ -129,11 +136,9 @@
         document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
         document.getElementById("eur").textContent = eur.toFixed(2) + " €";
 
-        // Fixwert vom 17.07.2025
         const fixedEuro = 261.47;
         document.getElementById("fixed-eur").textContent = fixedEuro.toLocaleString('de-DE', {style: 'currency', currency: 'EUR'});
 
-        // Prozentuale Veränderung berechnen
         const growth = ((eur - fixedEuro) / fixedEuro) * 100;
         const growthFormatted = (growth >= 0 ? "+" : "") + growth.toFixed(2) + " %";
         document.getElementById("growth").textContent = growthFormatted;
