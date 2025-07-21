@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bitcoin-Adresse – Euro-Wert (geschützt)</title>
+  <title>Bitcoin-Adresse – Euro-Wert</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -53,7 +53,7 @@
   </div>
 
   <script>
-    // Base64-kodierte Bitcoin-Adresse (bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez)
+    // Adresse sicher als Base64 (für leichte Verschleierung)
     const encodedAddress = 'YmMxcXpqNWs1YXdwcjVlMjU3NDN4ZXozZHhxMzZ0eXBqdDNjYzJ2ZXo=';
 
     function decodeBase64(str) {
@@ -69,10 +69,10 @@
     const address = decodeBase64(encodedAddress);
     document.getElementById('address').textContent = address;
 
-    // Countdown bis 17.07.2043
+    // Countdown bis zum 17.07.2043
     function updateCountdown() {
       const now = new Date();
-      const targetDate = new Date('2043-07-17T00:00:00Z'); // UTC Mitternacht
+      const targetDate = new Date('2043-07-17T00:00:00Z');
       const diffTime = targetDate - now;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -87,27 +87,24 @@
     }
 
     updateCountdown();
-    setInterval(updateCountdown, 60000); // jede Minute aktualisieren
+    setInterval(updateCountdown, 60000);
 
     async function fetchData() {
       try {
-        // Guthaben von Blockstream API holen
-        const res = await fetch(`https://blockstream.info/api/address/${address}`);
-        const data = await res.json();
-        const btcBalance = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
-        const btc = btcBalance / 1e8;
+        // 1. Guthaben via Blockchair holen
+        const blockchairRes = await fetch(`https://api.blockchair.com/bitcoin/dashboards/address/${address}`);
+        const blockchairData = await blockchairRes.json();
+        const btc = blockchairData.data[address].address.balance / 1e8;
 
-        // BTC-EUR Kurs von CoinGecko holen
+        // 2. BTC-EUR Kurs holen
         const rateRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur');
         const rateData = await rateRes.json();
         const eurRate = rateData.bitcoin.eur;
 
-        // Werte anzeigen
+        // 3. Anzeige aktualisieren
         document.getElementById('btc').textContent = btc.toFixed(8) + ' BTC';
         document.getElementById('eur').textContent = (btc * eurRate).toFixed(2) + ' €';
-
-        const now = new Date();
-        document.getElementById('time').textContent = `Aktualisiert: ${now.toLocaleString()}`;
+        document.getElementById('time').textContent = `Aktualisiert: ${new Date().toLocaleString()}`;
       } catch (err) {
         document.getElementById('btc').textContent = 'Fehler';
         document.getElementById('eur').textContent = 'Fehler';
@@ -116,7 +113,7 @@
     }
 
     fetchData();
-    setInterval(fetchData, 60000); // alle 60 Sekunden aktualisieren
+    setInterval(fetchData, 60000);
   </script>
 </body>
 </html>
