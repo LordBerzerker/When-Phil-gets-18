@@ -41,7 +41,8 @@
   <div class="card">
     <p><strong>Adresse:</strong><br><span id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</span></p>
     <p>BTC-Guthaben: <span id="btc" class="value">...</span></p>
-    <p>Euro-Wert: <span id="eur" class="value">...</span></p>
+    <p>Euro-Wert heute: <span id="eur" class="value">...</span></p>
+    <p>Wert am 17.04.2025 um 23:34: <span class="value">102.549,60 €</span></p>
     <div class="timestamp" id="time">Aktualisiere...</div>
   </div>
 
@@ -81,6 +82,13 @@
 
         document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
         document.getElementById("eur").textContent = eur.toFixed(2) + " €";
+
+// Fixwert vom 17.07.2025 um 23:34 in Euro
+const fixedEuro = 102549.60;
+const growth = ((eur - fixedEuro) / fixedEuro) * 100;
+const growthFormatted = (growth > 0 ? "+" : "") + growth.toFixed(2) + " %";
+document.getElementById("growth").textContent = "Veränderung seit dem 17.07.2025: " + growthFormatted;
+
         document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString();
       } catch (e) {
         console.error(e);
