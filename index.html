@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitcoin Schatz</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f1f1f1;
+      background: #f9f9f9;
       color: #333;
       text-align: center;
       padding: 2em;
     }
     .card {
-      background: #fff;
+      background: white;
       border-radius: 10px;
       padding: 2em;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -64,37 +64,36 @@
       }
     }
 
-    updateCountdown();
-    setInterval(updateCountdown, 60000);
-
     async function fetchData() {
       try {
-        // Blockstream API für BTC Guthaben
-        const res = await fetch(`https://blockstream.info/api/address/${address}`);
+        const proxy = 'https://corsproxy.io/?';
+        const url = `https://blockstream.info/api/address/${address}`;
+        const res = await fetch(proxy + encodeURIComponent(url));
         const data = await res.json();
+
         const sats = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
         const btc = sats / 1e8;
 
-        // CoinGecko API für BTC-EUR Kurs
-        const rateRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur");
+        const rateRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur');
         const rate = await rateRes.json();
         const eurRate = rate.bitcoin.eur;
         const eur = btc * eurRate;
 
-        // Anzeigen
         document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
         document.getElementById("eur").textContent = eur.toFixed(2) + " €";
         document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString();
-      } catch (error) {
+      } catch (e) {
+        console.error(e);
         document.getElementById("btc").textContent = "Fehler";
         document.getElementById("eur").textContent = "Fehler";
-        document.getElementById("time").textContent = "Fehler beim Laden der Daten";
-        console.error("Fehler beim Laden:", error);
+        document.getElementById("time").textContent = "Keine Daten";
       }
     }
 
+    updateCountdown();
     fetchData();
-    setInterval(fetchData, 60000); // jede Minute
+    setInterval(updateCountdown, 60000);
+    setInterval(fetchData, 60000);
   </script>
 </body>
 </html>
