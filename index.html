@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bitcoin-Adresse – Euro-Wert</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bitcoin Schatz</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      color: #222;
+      background: #f1f1f1;
+      color: #333;
       text-align: center;
       padding: 2em;
     }
     .card {
-      background: white;
+      background: #fff;
       border-radius: 10px;
       padding: 2em;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: inline-block;
       margin-top: 2em;
     }
@@ -39,29 +39,15 @@
 <body>
   <h1 id="countdown">Dieser kleine Schatz gehört in ... Tagen dir.</h1>
   <div class="card">
-    <p><strong>Adresse:</strong><br><span id="address">Lade...</span></p>
+    <p><strong>Adresse:</strong><br><span id="address">bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez</span></p>
     <p>BTC-Guthaben: <span id="btc" class="value">...</span></p>
     <p>Euro-Wert: <span id="eur" class="value">...</span></p>
-    <div class="timestamp" id="time"></div>
+    <div class="timestamp" id="time">Aktualisiere...</div>
   </div>
 
   <script>
-    const encodedAddress = 'YmMxcXpqNWs1YXdwcjVlMjU3NDN4ZXozZHhxMzZ0eXBqdDNjYzJ2ZXo=';
+    const address = "bc1qzj5k5auwpr5e25743xez3dxq36typjt3cc2vez";
 
-    function decodeBase64(str) {
-      try {
-        return decodeURIComponent(atob(str).split('').map(c =>
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join(''));
-      } catch {
-        return atob(str);
-      }
-    }
-
-    const address = decodeBase64(encodedAddress);
-    document.getElementById('address').textContent = address;
-
-    // Countdown berechnen
     function updateCountdown() {
       const now = new Date();
       const target = new Date("2043-07-17T00:00:00");
@@ -83,29 +69,32 @@
 
     async function fetchData() {
       try {
-        // ✅ Korrekte, CORS-kompatible Blockstream API
+        // Blockstream API für BTC Guthaben
         const res = await fetch(`https://blockstream.info/api/address/${address}`);
         const data = await res.json();
+        const sats = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
+        const btc = sats / 1e8;
 
-        const satoshis = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
-        const btc = satoshis / 1e8;
-
+        // CoinGecko API für BTC-EUR Kurs
         const rateRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur");
         const rate = await rateRes.json();
-        const eur = btc * rate.bitcoin.eur;
+        const eurRate = rate.bitcoin.eur;
+        const eur = btc * eurRate;
 
+        // Anzeigen
         document.getElementById("btc").textContent = btc.toFixed(8) + " BTC";
         document.getElementById("eur").textContent = eur.toFixed(2) + " €";
         document.getElementById("time").textContent = "Aktualisiert: " + new Date().toLocaleString();
-      } catch (err) {
+      } catch (error) {
         document.getElementById("btc").textContent = "Fehler";
         document.getElementById("eur").textContent = "Fehler";
-        console.error("Ladedaten-Fehler:", err);
+        document.getElementById("time").textContent = "Fehler beim Laden der Daten";
+        console.error("Fehler beim Laden:", error);
       }
     }
 
     fetchData();
-    setInterval(fetchData, 60000);
+    setInterval(fetchData, 60000); // jede Minute
   </script>
 </body>
 </html>
