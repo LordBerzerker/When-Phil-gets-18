@@ -9,6 +9,7 @@
       --primary-color: #1a73e8;
       --bg-color: #f9f9f9;
       --font-color: #333;
+      --btc-orange: #f7931a;
     }
 
     body {
@@ -39,7 +40,7 @@
     }
 
     #btc-word {
-      color: #f7931a;
+      color: var(--btc-orange);
       font-weight: bold;
     }
 
@@ -125,6 +126,7 @@
 
     async function fetchData() {
       try {
+        // Proxy um CORS-Probleme zu umgehen
         const proxy = 'https://corsproxy.io/?';
         const url = `https://blockstream.info/api/address/${address}`;
         const res = await fetch(proxy + encodeURIComponent(url));
